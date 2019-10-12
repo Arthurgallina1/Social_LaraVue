@@ -25,6 +25,8 @@ Route::middleware('auth:api')->put('/perfil', "UserController@perfil");
 Route::middleware('auth:api')->post('/conteudo/add', "ConteudoController@publish");
 Route::middleware('auth:api')->get('/conteudo/list', "ConteudoController@list");
 Route::middleware('auth:api')->put('/conteudo/curtida/{id}', "ConteudoController@curtida");
+Route::middleware('auth:api')->post('/conteudo/comentario/{id}', "ConteudoController@comentar");
+Route::middleware('auth:api')->get('/conteudo/pagina/list/{id}', "ConteudoController@pagina");
 
 Route::get('/testes', function(){
     

@@ -29,4 +29,9 @@ class Conteudo extends Model
     {   //Modelo, tabela, fk da relação, fk que esta juntando 
         return $this->belongsToMany('App\User', 'curtidas', 'conteudo_id', 'user_id');
     }
+
+    public function getDataAttribute($value){
+        $date = date('H:i d/m/Y', strtotime($value)); 
+        return str_replace(':', 'h', $date);
+    }
 }

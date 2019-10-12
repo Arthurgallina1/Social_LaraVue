@@ -49,9 +49,11 @@ class User extends Authenticatable
     {   //Modelo, tabela, fk do modelo que esta definindo a relação, fk que esta dando o join 
         return $this->belongsToMany('App\User', 'amigos', 'user_id', 'amigo_id');
     }
-    //mutação de atributo
+    //acessor de atributo
     public function getImageAttribute($value){
         return asset($value);
     }
+
+    
 
 }
