@@ -25,8 +25,13 @@ Route::middleware('auth:api')->put('/perfil', "UserController@perfil");
 Route::middleware('auth:api')->post('/conteudo/add', "ConteudoController@publish");
 Route::middleware('auth:api')->get('/conteudo/list', "ConteudoController@list");
 Route::middleware('auth:api')->put('/conteudo/curtida/{id}', "ConteudoController@curtida");
+Route::middleware('auth:api')->put('/conteudo/curtidaperfil/{id}', "ConteudoController@curtidapagina");
 Route::middleware('auth:api')->post('/conteudo/comentario/{id}', "ConteudoController@comentar");
+Route::middleware('auth:api')->post('/conteudo/comentariopagina/{id}', "ConteudoController@comentarpagina");
 Route::middleware('auth:api')->get('/conteudo/pagina/list/{id}', "ConteudoController@pagina");
+Route::middleware('auth:api')->post('/user/follow', "UserController@seguir");
+Route::middleware('auth:api')->get('/user/amigos', "UserController@listarAmigos");
+Route::middleware('auth:api')->get('/user/amigos/{id}', "UserController@listarAmigosDono");
 
 Route::get('/testes', function(){
     
@@ -67,20 +72,27 @@ Route::get('/testes', function(){
     // return $conteudo->curtidas()->count(); //Listar numero de curtidas qye o conteudo tem
 
     // ADICIONAR COMENTARIOS
-    $user = User::find(1);
-    $conteudo = Conteudo::find(12);
-    $user->comments()->create([
-        'conteudo_id' => $conteudo->id,
-        'texto' => 'Post top',
-        'data' => date('Y-m-d')
-    ]); // Conteudo que o comentario seria criado   'conteudo_id', 'texto', 'data')
-    $user->comments()->create([
-        'conteudo_id' => $conteudo->id,
-        'texto' => 'segundo comentario  do post',
-        'data' => date('Y-m-d')
-    ]); // Conteudo que o comentario seria criado   'conteudo_id', 'texto', 'data')
+    // $user = User::find(1);
+    // $conteudo = Conteudo::find(12);
+    // $user->comments()->create([
+    //     'conteudo_id' => $conteudo->id,
+    //     'texto' => 'Post top',
+    //     'data' => date('Y-m-d')
+    // ]); // Conteudo que o comentario seria criado   'conteudo_id', 'texto', 'data')
+    // $user->comments()->create([
+    //     'conteudo_id' => $conteudo->id,
+    //     'texto' => 'segundo comentario  do post',
+    //     'data' => date('Y-m-d')
+    // ]); // Conteudo que o comentario seria criado   'conteudo_id', 'texto', 'data')
 
-    return $conteudo->comments; //listar todos comentarios desse conteudo
+    // return $conteudo->comments; //listar todos comentarios desse conteudo
+    $user = User::find(8);
+    $amigos = $user->amigos()->pluck('amigo_id');
+    $amigos->push($user->id); //collections do laravel, para dar push no usuario logado além dos amigos que ele segue.
+    $conteudos = Conteudo::whereIn('user_id', $amigos)->with('user')->orderBy('data', 'DESC')->paginate(5);
+    
+
+    dd($conteudos);
 
     
     

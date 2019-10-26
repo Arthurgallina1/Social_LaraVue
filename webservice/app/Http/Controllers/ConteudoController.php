@@ -7,14 +7,18 @@ use App\Conteudo;
 use App\User;
 
 
+
 class ConteudoController extends Controller
 {   
      // LISTAR TODOS CONTEUDOS
      public function list(Request $request)
      {
-        //  $user = $request->user();
-        $conteudos = Conteudo::with('user')->orderBy('data', 'DESC')->paginate(5);
+       // $conteudos = Conteudo::with('user')->orderBy('data', 'DESC')->paginate(5);
         $user = $request->user();
+        $amigos = $user->amigos()->pluck('amigo_id');
+        $amigos->push($user->id); //collections do laravel, para dar push no usuario logado além dos amigos que ele segue.
+        $conteudos = Conteudo::whereIn('user_id', $amigos)->with('user')->orderBy('data', 'DESC')->paginate(5);
+
 
         foreach ($conteudos as $key => $conteudo){
             $conteudo->total_curtidas = $conteudo->curtidas()->count();//funciona como um objeto, será refletido no $conteudos, teremos a prop total_curtidas.
@@ -81,6 +85,25 @@ class ConteudoController extends Controller
        
     }
 
+    public function curtidapagina($id, Request $request)
+    {
+        // ADICIONAR CURTIDAS
+        $conteudo = Conteudo::find($id);
+        //validação pobre
+        if($conteudo){
+            $user = $request->user();
+            $user->curtidas()->toggle($conteudo->id); //Esse usuariu curtiu esse conteudo.
+            // return $conteudo->curtidas; //Listar curtidas que o conteudo tem
+            // return $conteudo->curtidas->count();
+            return ['status' => true, 
+            'curtidas' => $conteudo->curtidas()->count(),
+            'lista' => $this->pagina($conteudo->user_id, $request)]; //o dono do conteudo
+        } else {
+            return ['status' => false, 'erro' => 'It doesn\'t exist'];
+        }
+       
+    }
+
     public function comentar($id, Request $request)
     {
         $user = $request->user();
@@ -95,6 +118,26 @@ class ConteudoController extends Controller
                 'data' => date('Y-m-d H:i:s')
             ]); // Conteudo que o comentario seria criado   'conteudo_id', 'texto', 'data')
             return ['status' => true, 'lista' => $this->list($request)]; //Listar numero de curtidas qye o conteudo tem //chama o método lista e coloca o return dele dentro de 'lista'
+        } else {
+            return ['status' => false, 'erro' => 'It doesn\'t exist'];
+        }
+       
+    }
+    //retorna apenas o conteudo do usuario donoda pagina
+    public function comentarpagina($id, Request $request)
+    {
+        $user = $request->user();
+
+        // ADICIONAR CURTIDAS
+        $conteudo = Conteudo::find($id); //busca conteudo
+        if($conteudo){
+            // cria comentario 
+            $user->comments()->create([
+                'conteudo_id' => $conteudo->id,
+                'texto' => $request->texto,
+                'data' => date('Y-m-d H:i:s')
+            ]); // Conteudo que o comentario seria criado   'conteudo_id', 'texto', 'data')
+            return ['status' => true, 'lista' => $this->pagina($conteudo->user_id, $request)]; //Listar numero de curtidas qye o conteudo tem //chama o método lista e coloca o return dele dentro de 'lista'
         } else {
             return ['status' => false, 'erro' => 'It doesn\'t exist'];
         }

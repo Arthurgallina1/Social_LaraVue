@@ -45,9 +45,14 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Conteudo', 'curtidas', 'user_id', 'conteudo_id');
     }
 
-    public function amigos()
+    public function amigos() //trará quem o requisitando está seguindo
     {   //Modelo, tabela, fk do modelo que esta definindo a relação, fk que esta dando o join 
         return $this->belongsToMany('App\User', 'amigos', 'user_id', 'amigo_id');
+    }
+
+    public function seguidores() //trará quem segue o requisitando
+    {   //Modelo, tabela, fk do modelo que esta definindo a relação, fk que esta dando o join 
+        return $this->belongsToMany('App\User', 'amigos', 'amigo_id', 'user_id');
     }
     //acessor de atributo
     public function getImageAttribute($value){

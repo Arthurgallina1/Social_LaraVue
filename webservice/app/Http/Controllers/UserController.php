@@ -169,5 +169,44 @@ class UserController extends Controller
         return ["status" => true, "user" => $user];
     }
 
+    public function seguir (Request $request)
+    {
+        $user = $request->user();
+        $amigo = User::find($request->id); //amigo que será adicionado
+        if($amigo && $user->id != $amigo->id){
+            $user->amigos()->toggle($amigo->id);
+            return ['status' => true, 'amigos' => $user->amigos, 'seguidores' => $amigo->seguidores]; //retorna todos os amigos do usuario logado e do dono da pagina
+        } else {
+            return ['status' => false, 'erro' => 'Erro ao seguir'];
+        }
+       
+    }
+
+    public function listarAmigos(Request $request)
+    {
+        $user = $request->user();
+
+        if($user){
+            return ['status' => true, 'amigos' => $user->amigos, 'seguidores' => $user->seguidores];
+        } else {
+            return ['status' => false, 'erro' => 'Erro ao listar amigos'];
+        }
+
+
+    }
+
+    public function listarAmigosDono(Request $request, $id)
+    {
+        $user = $request->user();
+        $donoPagina = User::find($id);
+        
+        if($donoPagina){
+            // $user->amigos()->toggle($donoPagina->id);
+            return ['status' => true, 'amigos' => $donoPagina->amigos, "amigoslogado" => $user->amigos, 'seguidores' => $donoPagina->seguidores]; // $donoPagina->amigos listas os amigos do dona da pagina
+        } else {
+            return ['status' => false, 'erro' => 'Erro ao listar amigos'];
+        }
+
+    }
 
 }
